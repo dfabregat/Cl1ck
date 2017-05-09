@@ -3,6 +3,7 @@ import copy
 from core.expression import Equal, Predicate, NList, Symbol
 from core.functional import replace, RewriteRule, Replacement
 
+import core.TOS as TOS
 import PredicateMetadata as pm
 
 # Needed:
@@ -57,7 +58,12 @@ def _checkPredicateOverwrite( statement ):
 
     statements = []
     # [FIXME] Assumes one single operands get overwritten. Will break in the future
+    already_copied = []
     for inp, out in pm.DB[rhs.name].overwrite:
+        if inp in already_copied:
+            continue
+        already_copied.append(inp)
+        #
         if rhs.children[inp] != lhs.children[out]: # [FIXME] All should have st_into
             try:
                 overwrites = lhs.children[out].st_info[1] == rhs.children[inp].st_info[1]
@@ -69,8 +75,16 @@ def _checkPredicateOverwrite( statement ):
             inpop = rhs.children[inp]
             outop = lhs.children[out]
             if inpop.isTemporary() or inpop.isInput():
+                # if multiple outputs overwrite input (e.g., LU)
+                if len([ o for i,o in pm.DB[rhs.name].overwrite if i == inp ]) > 1:
+                    try:
+                        outop = TOS._TOS[outop.st_info[1].name][0] # LU  (ABR = T3; [LBR,UBR] = LU(ABR))
+                    except:
+                        pass
+                    outop.st_info = (None, outop)
+                #
                 statements.append( Equal([NList([outop]), inpop]) )
-                rhs.children[inp] = lhs.children[out]
+                rhs.children[inp] = outop
                 statements.append( statement )
             else:
                 lhs.children[out] = rhs.children[inp]

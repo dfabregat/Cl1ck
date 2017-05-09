@@ -393,6 +393,11 @@ class Operation( object ):
             self.algs.append( algs )
 
     def express_in_terms_of_input( self, assignments ):
+        # In LU, there may be (overwritable) inputs as lhs
+        for a in assignments:
+            if a.children[0].children[0].isInput():
+                raise Exception
+        assignments = [ a for a in assignments if not a.children[0].children[0].isInput() ] 
         expand_rules = list(itertools.chain(*self.expr_to_rule_lhs_rhs( assignments )))
         new_ass = []
         for expr in assignments:
@@ -406,8 +411,13 @@ class Operation( object ):
         #   does not appear in the after or
         # going from before to after requires undoing some computation
         # it is potentially unstable, and more expensive: ignore
-        before_finputs = self.express_in_terms_of_input( before )
-        after_finputs = self.express_in_terms_of_input( after )
+        try:
+            before_finputs = self.express_in_terms_of_input( before )
+            after_finputs = self.express_in_terms_of_input( after )
+        except:
+            # [TODO] In LU's variant 5, parts of A appear as lhs's
+            return None
+        #
         dict_bef = dict([ (str(u.get_children()[0]), u) for u in before_finputs ])
         dict_aft = dict([ (str(u.get_children()[0]), u) for u in after_finputs ])
         same = []
@@ -457,9 +467,9 @@ class Operation( object ):
         wrap_rules_before = []
         for u in before:
             lhs, rhs = u.get_children()
-            if len(lhs.children) > 1: 
-                wrap_rules_before.append([])
-                continue
+            #if len(lhs.children) > 1: 
+                #wrap_rules_before.append([])
+                #continue
             rules = self.expr_to_rule_rhs_lhs( [u] )
             wrap_rules_before.append(list(itertools.chain(*rules)))
         #
@@ -493,9 +503,9 @@ class Operation( object ):
             wrap_rules_after = []
             for u in after:
                 lhs, rhs = u.get_children()
-                if len(lhs.children) > 1: 
-                    wrap_rules_after.append([])
-                    continue
+                #if len(lhs.children) > 1: 
+                    #wrap_rules_after.append([])
+                    #continue
                 rules = self.expr_to_rule_rhs_lhs( [u] )
                 wrap_rules_after.append(list(itertools.chain(*rules)))
             #
@@ -513,10 +523,23 @@ class Operation( object ):
         updates = []
         for u in after:
             lhs, rhs = u.get_children()
-            lhs = lhs.children[0] # NList[op] -> op
-            if isinstance(rhs, WrapBefOut) and isinstance(lhs, WrapOutAft) and \
-                    matchq(lhs.children[0], rhs.children[0]):
-                continue
+            if len(lhs.children) == 1:
+                lhs = lhs.children[0] # NList[op] -> op
+                if isinstance(rhs, WrapBefOut) and isinstance(lhs, WrapOutAft) and \
+                        matchq(lhs.children[0], rhs.children[0]):
+                    continue
+            elif not isinstance(rhs, NList): # multiple outputs/predicate in rhs, 
+                                             # but not complete (otherwise it would be NList)
+                pass
+            else:
+                to_skip = True
+                for l,r in zip(lhs.children, rhs.children):
+                    if not( isinstance(r, WrapBefOut) and isinstance(l, WrapOutAft) and \
+                            matchq(l.children[0], r.children[0]) ):
+                        to_skip = False
+                        break
+                if to_skip:
+                    continue
             updates.append(u)
         #
         tiled_updates = []
@@ -723,6 +746,8 @@ class Operation( object ):
                     new_rhs = simplify(to_canonical(Transpose([rhs])))
                     if not isOperand( new_rhs ):
                         pr.append( RewriteRule( simplify(to_canonical(Transpose([rhs]))), Replacement(Transpose([lhs_sym])) ) )
+            else:
+                pr.append(RewriteRule(rhs, Replacement(lhs)))
             rules.append(pr)
         return rules
 
