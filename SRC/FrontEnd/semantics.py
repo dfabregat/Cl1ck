@@ -1,5 +1,6 @@
 from grako.ast import AST
 from FrontEnd.exceptions import *
+from core.TOS import _TOS as TOS
 from core.expression import BaseExpression, Symbol, Matrix, Vector, Scalar,\
                             Equal, Plus, Minus, Times, Transpose,\
                             Inverse
@@ -53,6 +54,8 @@ class cl1ckSemantics(object):
             var.st_info = (storage, ow)
 
             self._cache[ast['name']] = var
+            op, props = TOS[ast['name']]
+            TOS[ast['name']] = (var, props)
             return var
         else:
             raise RedeclarationError('Variable %s redeclared', ast.name)
