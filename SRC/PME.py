@@ -4,6 +4,7 @@ import functools
 
 import sympy
 
+import Config
 from core.expression import Symbol, Predicate, BlockedExpression, NList, \
                             PatternDot, PatternPlus, PatternStar
 from core.BlockedExpression_utils import flatten_blocked_operation
@@ -62,10 +63,10 @@ class PME( object ):
         self.partitioned_postcondition = \
             [replace( copy.deepcopy(eq), rewrite_rules ) for eq in self.equation]
         
-        print( "* Partitioned postcondition" )
-        for eq in self.partitioned_postcondition:
-            print( "*    ", eq )
-        #print( )
+        if Config.options.verbose:
+            print( "* Partitioned postcondition" )
+            for eq in self.partitioned_postcondition:
+                print( "*    ", eq )
 
     def distribute_partitioned_postcondition( self ):
         dist = [simplify(to_canonical(flatten_blocked_operation( eq )))._cleanup() \
@@ -74,8 +75,6 @@ class PME( object ):
         shape = dist[0].shape
         self.distributed_partitioned_postcondition = \
             BlockedExpression( map_thread( NList, dist, 2 ), size, shape )
-        #for eq in self.distributed_partitioned_postcondition:
-            #print( eq )
         
     def solve_equations( self ):
         dist = self.distributed_partitioned_postcondition
@@ -120,7 +119,6 @@ class PME( object ):
                         #raise Exception
                         pass
             cur_solved_outputs = set([ op.get_name() for op in all_outputs if isInput(op) ])
-            #print( "SOLVED:", cur_solved_outputs )
             if solved_outputs == cur_solved_outputs:
                 print( "[WARNING] PME Generation is stuck" )
                 print( solved_outputs )
@@ -171,10 +169,10 @@ class PME( object ):
         for op in solved_outputs:
             TOS[op][0].set_property( OUTPUT )
 
-        print( "* PME " )
-        for eq in self.solved_subequations:
-            print( "*    ", eq )
-        #print( )
+        if Config.options.verbose:
+            print( "* PME " )
+            for eq in self.solved_subequations:
+                print( "*    ", eq )
 
     def learn_pattern( self ):
         inops = [ op for op in self.operands if op.isInput() ]
@@ -262,8 +260,9 @@ class PME( object ):
                                 #for row in eqs ]) + " ]" + \
                             #", (0,0), (%d, %d) )" % (r, c) + \
                             #"])" # size does not matter
-        print( "* Learnt PME pattern" )
-        print( "*     ", RewriteRule( pattern, Replacement( replacement_str ) ) )
+        if Config.options.verbose:
+            print( "* Learnt PME pattern" )
+            print( "*     ", RewriteRule( pattern, Replacement( replacement_str ) ) )
         self.known_pmes.append( RewriteRule( pattern, Replacement( replacement_str ) ) )
 
     def solve_base_case( self ):

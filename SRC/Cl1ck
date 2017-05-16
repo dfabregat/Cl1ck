@@ -23,6 +23,8 @@ parser.add_argument("--matlab", default=False, action="store_true", \
                     #help="Generates FLAME C code")
 parser.add_argument("--opt", default=False, action="store_true", \
                     help="Generates optimized code (copy propagation, ...)")
+parser.add_argument("--verbose", default=False, action="store_true", \
+                    help="Generates a verbose output of the process of algorithm generation")
 Config.options = parser.parse_args()
 
 # Proceed to generate algorithms/code

@@ -78,7 +78,7 @@ class Operation( object ):
         self.generate_loop_invariants()
         self.generate_loop_based_algorithms()
         self.generate_code()
-
+        print("**********************************")
     #
     # Initialization step:
     #   
@@ -131,13 +131,14 @@ class Operation( object ):
                         ", ".join( ["%s.get_size()" % op.get_name() for op in outops]))
                       )
         # [TODO] This should be part of the verbose option
-        print( "* Learnt pattern" )
-        print( "*   ", pattern, end="" )
-        if constraint.to_eval:
-            print( "with        ", constraint.to_eval )
-        print(" --> ")
-        print( "*          ", replacement.to_eval )
-        print("**********************************")
+        if Config.options.verbose:
+            print( "* Learnt pattern" )
+            print( "*   ", pattern, end="" )
+            if constraint.to_eval:
+                print( " with        ", constraint.to_eval )
+            print(" --> ")
+            print( "*          ", replacement.to_eval )
+            print("**********************************")
         # [TODO] Maybe sort known ops by specificity (a la mathematica)
         #known_ops.insert( 0, RewriteRule( (pattern, constraint), replacement ) )
 
@@ -171,7 +172,8 @@ class Operation( object ):
         #
         self.pmes = []
         for part_tuple in itertools.product([1,2], repeat=len(self.bound_dimensions)-1):
-            print("* ")
+            if Config.options.verbose:
+                print("* ")
             # If multidimensional partitioning and --lgen: skip
             multidim_part = len( [ psize for psize in part_tuple if psize != 1 ] ) > 1
             if multidim_part and Config.options.lgen:
@@ -204,7 +206,8 @@ class Operation( object ):
         #
         for pme in self.pmes:
             pme.sort()
-        print("**********************************")
+        if Config.options.verbose:
+            print("**********************************")
 
     def bind_dimensions( self ):
         self.bound_dimensions = bindDimensions( self.equation, self.operands )
@@ -241,17 +244,19 @@ class Operation( object ):
         self.linvs = [] 
         self.travs = [] # traversal of the operands
         for pme in self.pmes:
-            print("* ")
+            if Config.options.verbose:
+                print("* ")
             loop_invariants = [] # This PME's loop invariants
             travs = [] # Traversals for this PME's loop invariants
             for tiling in self.tile_pme( pme ):
                 tiling = self.pme_tiling_eliminate_temporaries( tiling )
                 linear_tiling = list(itertools.chain( *tiling ))
                 ##
-                print( "* Tiling PME" )
-                for t in linear_tiling:
-                    print("* ", t)
-                print("* ")
+                if Config.options.verbose:
+                    print( "* Tiling PME" )
+                    for t in linear_tiling:
+                        print("* ", t)
+                    print("* ")
                 ##
                 dep_graph = build_dep_graph( linear_tiling )
                 #for g in dep_graph:
@@ -267,15 +272,17 @@ class Operation( object ):
                        not any( [linv_candidate.same_up_to_temporaries( linv ) \
                                        for linv in loop_invariants] ):
                         loop_invariants.append( linv_candidate )
-                        print( "*   Loop invariant %d" % len( loop_invariants ) )
-                        for expr in itertools.chain( *linv_candidate.expressions ):
-                            print("*     ",  expr )
-                        print("* ")
+                        if Config.options.verbose:
+                            print( "*   Loop invariant %d" % len( loop_invariants ) )
+                            for expr in itertools.chain( *linv_candidate.expressions ):
+                                print("*     ",  expr )
+                            print("* ")
                     #else:
                         #print(" Unfeasiable linv ")
                         #print( linv_candidate.expressions )
             self.linvs.append( loop_invariants )
-        print("**********************************")
+        if Config.options.verbose:
+            print("**********************************")
 
     def tile_pme( self, pme ):
         #TOS.reset_temp() # Start again from T1
@@ -336,25 +343,30 @@ class Operation( object ):
         for pme, linvs in zip( self.pmes, self.linvs ):
             algs = []
             for linv in linvs:
-                print("* ")
-                print( "* Loop invariant", variant )
-                for expr in linv.expressions:
-                    print("*     ",  expr )
-                print("* ")
+                if Config.options.verbose:
+                    print("* ")
+                    print( "* Loop invariant", variant )
+                    for expr in linv.expressions:
+                        print("*     ",  expr )
+                    print("* ")
                 trav, init_state, _ = linv.traversals[0] # this would be another for loop
                 init = self.algorithm_initialization( init_state )
-                print( "* Init" )
-                #print( init_state )
-                print( "*   ", init )
+                if Config.options.verbose:
+                    print( "* Init" )
+                    #print( init_state )
+                    print( "*   ", init )
                 s = PatternDot("s")
                 init = [ replace_all( i, [RewriteRule( WrapOutBef(s), Replacement(lambda d: d["s"]) )] ) for i in init ]
-                print( "* Before" )
+                if Config.options.verbose:
+                    print( "* Before" )
                 repart, before = self.generate_predicate_before( pme, trav, linv.expressions, linv )
-                print( "* After" )
+                if Config.options.verbose:
+                    print( "* After" )
                 reversed_trav = dict( [(k, (r*-1, c*-1)) for k, (r,c) in trav.items() ] )
                 cont_with, after = self.generate_predicate_before( pme, reversed_trav, linv.expressions, linv )
                 # find updates
-                print( "* Updates" )
+                if Config.options.verbose:
+                    print( "* Updates" )
                 updates = self.find_updates( before, after )
                 if updates is None:
                     #variant += 1
@@ -521,16 +533,18 @@ class Operation( object ):
         #
         tiled_updates = []
         for u in updates:
-            print( "*   ", u )
+            if Config.options.verbose:
+                print( "*   ", u )
             tilings = list( tile_expr(u) ) 
-            if len(tilings) > 1:
+            if len(tilings) > 1 and Config.options.verbose:
                 print( "[WARNING] Multiple (%d) tilings for expression %s" % (len(tilings), u) )
                 print( "          Discarding all but one" )
             tiled_updates.extend( tilings[0] )
         tiled_updates = sort( tiled_updates )
-        print( "* Tiled update" )
-        for t in tiled_updates:
-            print("*   ", t)
+        if Config.options.verbose:
+            print( "* Tiled update" )
+            for t in tiled_updates:
+                print("*   ", t)
 
         # Drop WrapOutBef's
         # Drop WrapOutAft's
@@ -632,16 +646,18 @@ class Operation( object ):
         #
         tiled_updates = []
         for u in updates:
-            print( "*   ", u )
+            if Config.options.verbose:
+                print( "*   ", u )
             tilings = list( tile_expr(u) ) 
-            if len(tilings) > 1:
+            if len(tilings) > 1 and Config.options.verbose:
                 print( "[WARNING] Multiple (%d) tilings for expression %s" % (len(tilings), u) )
                 print( "          Discarding all but one" )
             tiled_updates.extend( tilings[0] )
         tiled_updates = sort( tiled_updates )
-        print( "* Tiled update" )
-        for t in tiled_updates:
-            print("*   ", t)
+        if Config.options.verbose:
+            print( "* Tiled update" )
+            for t in tiled_updates:
+                print("*   ", t)
 
         # Drop WrapOutBef's
         # Drop WrapOutAft's
@@ -843,8 +859,9 @@ class Operation( object ):
         #
         # Print and return
         #
-        for expr in final:
-            print( "*   ", expr )
+        if Config.options.verbose:
+            for expr in final:
+                print( "*   ", expr )
 
         return (reparts, final)
 

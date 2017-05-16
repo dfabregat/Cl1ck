@@ -1,6 +1,7 @@
 import copy
 import itertools
 
+import Config
 from core.expression import Symbol, Matrix, Vector, Scalar, NumericConstant, \
                             Equal, Plus, Minus, Times, Transpose, Inverse, \
                             BlockedExpression, NList, Predicate, sZERO
@@ -39,10 +40,6 @@ class LoopInvariant( object ):
                           else 0 for i in range( len( self.dep_graph ) ) ]
         unchained_subg = list( unchain_graph( self.tiling, subg_filter ) )
         filtered_tiling = filter_tiling( self.tiling, unchained_subg )
-        #print("++++")
-        #for t in filtered_tiling:
-            #print(t)
-        #print("++++")
         self.expressions = compress_tiles( filtered_tiling )
         self.fix_temporaries()
 
@@ -55,7 +52,6 @@ class LoopInvariant( object ):
                     self.linv_operands.append( out )
                     temp_exprs.append( expr )
         for expr in temp_exprs:
-            #print( expr )
             lhs, rhs = expr.get_children()
             lhs = lhs.get_children()[0]
             # Determine to which operands in the temporary bound
@@ -162,7 +158,7 @@ class LoopInvariant( object ):
             # Store these states for use in loop peeling (LGenCode)
             #self.iteration_rules.append( (initial_rules, final_rules) )
 
-        if len( feasible_traversals ) > 1:
+        if len( feasible_traversals ) > 1 and Config.options.verbose:
             print( "* More than one traversal for this LoopInvariant: %d" % len(feasible_traversals) )
         self.traversals = feasible_traversals
         return bool( feasible_traversals )
