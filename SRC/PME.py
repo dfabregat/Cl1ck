@@ -275,7 +275,7 @@ class PME( object ):
         # ex. chol: sol = [ (sqrt(a),), (-sqrt(a),) ]; what if more than one?
         if isinstance( sols, list ):
             if len( sols ) > 1:
-                print( "[WARNING] Multiple solutions to the scalar case\n" )
+                print( "[WARNING] Multiple solutions to the scalar case" )
             # trick for chol (the only one with multiple sols so far) to get the positive sqrt
             # [TODO] Can I find a way to avoid tricks and select the rigt one? Can I use l>0 in sympy.solve?
             sol = sols[-1]

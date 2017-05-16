@@ -1,5 +1,6 @@
 import copy
 
+import Config
 from core.expression import Equal, Plus, Times, Minus, Transpose, Inverse, \
                             Symbol, PatternDot, PatternStar, NList, Predicate
 from core.functional import Constraint, Replacement, RewriteRule, match, replace
@@ -65,7 +66,8 @@ def propagate_st_info( inp, out ):
     elif out.isSymmetric():
         symm_ops = [ ch for ch in inp.children if ch.isSymmetric() and isinstance( ch, Symbol ) ]
         if symm_ops:
-            print( "Propagating st info from:", symm_ops )
+            if Config.options.verbose:
+                print( "Propagating st info from:", symm_ops )
             out.st_info = (symm_ops[0].st_info[0], out )
         else:
             pass
