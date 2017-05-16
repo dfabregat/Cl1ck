@@ -741,6 +741,9 @@ class Operation( object ):
                     repl_f = (lambda lhs: lambda d: Times([simplify(to_canonical(Minus([Times([lhs])])))] + d["r"].children) )(lhs_sym)
                     pr.append( RewriteRule( Times([simplify(to_canonical(Minus([Times(rhs.get_children())])))] + [r] ),
                                     Replacement(repl_f) ) )
+                    repl_f = (lambda lhs: lambda d: Times([simplify(to_canonical(Minus([Transpose([Times([lhs])])])))] + d["r"].children) )(lhs_sym)
+                    pr.append( RewriteRule( Times([simplify(to_canonical(Minus([Transpose([Times(rhs.get_children())])])))] + [r] ),
+                                    Replacement(repl_f) ) )
                 else:
                     pr.append( RewriteRule( rhs, Replacement(lhs_sym) ) )
                     new_rhs = simplify(to_canonical(Transpose([rhs])))
