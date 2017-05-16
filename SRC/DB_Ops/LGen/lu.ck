@@ -1,4 +1,4 @@
-program LU
+program LU_ow
     Matrix A(m,m) <Input>;
     Matrix L(m,m) <Output, LowerTriangular, UnitDiagonal, Non-singular, overwrites(A)>;
     Matrix U(m,m) <Output, UpperTriangular, Non-singular, overwrites(A)>;
