@@ -23,7 +23,8 @@ class cl1ckSemantics(object):
                 rows, cols = Symbol(rows), Symbol(cols)
                 var = Matrix(ast['name'], (rows, cols))
                 for prop in ast.props:
-                    var.set_property(prop)
+                    if prop not in ("LowerStorage", "UpperStorage"):
+                        var.set_property(prop)
             elif ast['vartype'] == 'Vector':
                 rows = ast['dims'][0]
                 rows = Symbol(rows)
