@@ -41,7 +41,7 @@ from RewritingExtension import *
 
 from BackEnd.MatlabCode import generate_matlab_code, click2matlab
 #from BackEnd.LatexCode import generate_latex_code
-#from BackEnd.LGenCode import generate_lgen_files
+from BackEnd.LGenCode import generate_lgen_files
 #from BackEnd.CCode import generate_c_code
 
 known_ops = [
@@ -894,16 +894,16 @@ class Operation( object ):
             return 
 
         ## [LGEN] Loop based algorithms/code
-        #if Config.options.lgen:
-            #if Config.options.opt:
-                #lgen_dir = os.path.join(Config.lgen_dir, self.name + "_opt")
-            #else:
-                #lgen_dir = os.path.join(Config.lgen_dir, self.name)
-            #try:
-                #os.makedirs( lgen_dir )
-            #except OSError as err:
-                #pass
-            #generate_lgen_files( self, lgen_dir )
+        if Config.options.lgen:
+            if Config.options.opt:
+                lgen_dir = os.path.join(Config.lgen_dir, self.name + "_opt")
+            else:
+                lgen_dir = os.path.join(Config.lgen_dir, self.name)
+            try:
+                os.makedirs( lgen_dir )
+            except OSError as err:
+                pass
+            generate_lgen_files( self, lgen_dir, known_ops_single )
         ## [FLAMEC] Loop based algorithms/code
         #if Config.options.flamec:
             #c_dir = os.path.join(Config.c_dir, self.name)

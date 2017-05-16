@@ -17,8 +17,8 @@ parser.add_argument("--latex", default=False, action="store_true", \
                     help="Generates LaTeX code to document the generated algorithms in FLAME notation")
 parser.add_argument("--matlab", default=False, action="store_true", \
                     help="Generates Matlab code for each algorithm and test drivers")
-#parser.add_argument("--lgen", default=False, action="store_true", \
-                    #help="Generates LGen code to interact with LGen")
+parser.add_argument("--lgen", default=False, action="store_true", \
+                    help="Generates LGen code to interact with LGen")
 #parser.add_argument("--flamec", default=False, action="store_true", \
                     #help="Generates FLAME C code")
 parser.add_argument("--opt", default=False, action="store_true", \
