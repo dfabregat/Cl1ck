@@ -442,7 +442,8 @@ class Operation( object ):
                     reason = "%s would require undoing job" % k
                     break
         if ignore:
-            print( "[INFO] Skipping invariant: %s" % reason )
+            if Config.options.verbose:
+                print( "[INFO] Skipping invariant: %s" % reason )
             return None
         #
         # Wrap outputs for before and after
