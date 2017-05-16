@@ -175,9 +175,9 @@ class Operation( object ):
             if Config.options.verbose:
                 print("* ")
             # If multidimensional partitioning and --lgen: skip
-            multidim_part = len( [ psize for psize in part_tuple if psize != 1 ] ) > 1
-            if multidim_part and Config.options.lgen:
-                continue
+            #multidim_part = len( [ psize for psize in part_tuple if psize != 1 ] ) > 1
+            #if multidim_part and Config.options.lgen:
+                #continue
             # Build dict such as part_shape[op.get_name()] = (1,2), ...
             part_tuple = [1] + list(part_tuple)
             dims_to_part_shape = dict()
