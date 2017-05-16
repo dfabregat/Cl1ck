@@ -316,7 +316,7 @@ def inherit_storage( operand, this_part, other_part ):
     elif st == storage.ST_UPPER:
         inherit_st_upper( this_part, other_part )
     else:
-        print( "\n[WARNING] Inheritance of property %s not implemented!\n" % prop )
+        print( "\n[WARNING] Inheritance of property %s not implemented!\n" % st )
 
 def inherit_st_full( this_part, other_part ):
     for this, other in zip( itertools.chain(*this_part), itertools.chain(*other_part) ):
