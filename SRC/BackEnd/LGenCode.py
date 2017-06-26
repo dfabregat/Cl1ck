@@ -487,9 +487,15 @@ def traversal2loop( alg, opname, quadrant, peel_first, peel_last ):
     if peel_first:
         start = step
     # end
-    end = "@%s@-(@nb@)" % dim
-    if peel_last:
+    # if peeled to avoid ops with empty objects
+    if alg.needs_tail_peeling:
         end = "@%s@-(@nb@+1)" % dim
+    # if instead peeled enforced due to sizes non-multiple of nu
+    elif Config.options.sizes == "non-multiple-of-nu":
+        end = "@%s@-(@%s@%%@nb@+1)" % (dim, dim)
+    # otherwise, for multiples of nu, no peeling, thus this suffices
+    else:
+        end = "@%s@-(@nb@)" % dim
     return ( it, start, end, step ), dim
 
 def set_loop_indices( opname, alg ):
