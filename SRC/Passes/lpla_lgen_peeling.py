@@ -47,8 +47,11 @@ def peel_loop( alg, lpla_alg, force_tail=True ):
         alg.peel_first_it = True
     #post_loop = post 
     # Same length as well, otherwise zip truncates and may lead to errors
-    if len(post) == len(alg.updates) and  all( [p == u for p,u in zip( post, alg.updates )] ) and \
-            not force_tail:
+    if len(post) == len(alg.updates) and  all( [p == u for p,u in zip( post, alg.updates )] ):
+        alg.needs_tail_peeling = False
+    else:
+        alg.needs_tail_peeling = True
+    if not alg.needs_tail_peeling and not force_tail:
         #post_loop = []
         peeling_post = []
         alg.peel_last_it = False
