@@ -19,6 +19,8 @@ parser.add_argument("--matlab", default=False, action="store_true", \
                     help="Generates Matlab code for each algorithm and test drivers")
 parser.add_argument("--lgen", default=False, action="store_true", \
                     help="Generates LGen code to interact with LGen")
+parser.add_argument("--sizes", type=str, choices=["multiple-of-nu", "non-multiple-of-nu"], default="non-multiple-of-nu",
+                    help="Specifies whether lgen assumes sizes as multiples of vector size or not")
 #parser.add_argument("--flamec", default=False, action="store_true", \
                     #help="Generates FLAME C code")
 parser.add_argument("--opt", default=False, action="store_true", \

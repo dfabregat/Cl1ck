@@ -138,7 +138,7 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
                 #print( lpla_alg )
 
             lpla_alg = alg2lpla( operation, pme, linv, alg, var )
-            lpla_alg = peeling.peel_loop( alg, lpla_alg )
+            lpla_alg = peeling.peel_loop( alg, lpla_alg, force_tail=Config.options.sizes=="non-multiple-of-nu" )
             if Config.options.opt:
                 # OPTIMIZATIONS
                 #

@@ -7,7 +7,7 @@ from core.functional import replace, RewriteRule, Replacement
 
 import Passes.lpla as lpla
 
-def peel_loop( alg, lpla_alg ):
+def peel_loop( alg, lpla_alg, force_tail=True ):
     # Grab while loop
     line, lpla_loop = [ (i,st) for i,st in enumerate(lpla_alg.body) if isinstance( st, lpla._while ) ][0]
     # Get bounds for top and bottom (repart, cont_with)
@@ -47,7 +47,8 @@ def peel_loop( alg, lpla_alg ):
         alg.peel_first_it = True
     #post_loop = post 
     # Same length as well, otherwise zip truncates and may lead to errors
-    if len(post) == len(alg.updates) and  all( [p == u for p,u in zip( post, alg.updates )] ):
+    if len(post) == len(alg.updates) and  all( [p == u for p,u in zip( post, alg.updates )] ) and \
+            not force_tail:
         #post_loop = []
         peeling_post = []
         alg.peel_last_it = False
