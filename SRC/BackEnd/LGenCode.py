@@ -340,6 +340,7 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
         print( "%% %s" % update, file=fout )
         indices_backup = copy.deepcopy(alg.indices)
         alg.indices = replace_iterator_in_indices( alg.indices, it, "0" )
+        alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@,@%s@)"%dim )
         print( "" + click2lgen(update, alg) + ";", file=fout )
         alg.indices = indices_backup
     # body
@@ -360,8 +361,7 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
         if not isinstance( update, Equal ):
             continue
         indices_backup = copy.deepcopy(alg.indices)
-        alg.indices = replace_iterator_in_indices( alg.indices, it, "(@%s@-@nb@)" % dim )
-        #
+        #alg.indices = replace_iterator_in_indices( alg.indices, it, "(@%s@-@nb@)" % dim )
         # Still, some zero op may remain, if rhs is predicate and lhs is temporary
         # [FIXME] What if multiple outputs. Not supported yet by LGEN.
         lhs, rhs = update.children
@@ -379,9 +379,41 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
         if iszero:
             continue
         #
-        print( "%% %s" % update, file=fout )
-        print( "" + click2lgen(update, alg) + ";", file=fout )
-        alg.indices = indices_backup
+        if alg.peel_first_it:
+            post_min_start = "Min(@%s@,@nb@)" % dim
+        else:
+            post_min_start = "0"
+        if alg.needs_tail_peeling:
+            print("If[(@%s@ %% @%s@ == 0)] {" % (dim, "nb"), file=fout)
+            # start
+            alg.indices = replace_iterator_in_indices( alg.indices, it, "Max(@%s@-@nb@, %s)" % (dim, post_min_start) )
+            # size
+            #alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "Min(@nb@, @%s@-@%s@%%@nb@)" % (dim, dim) )
+            print( "\t%% %s" % update, file=fout )
+            print( "\t" + click2lgen(update, alg) + ";", file=fout )
+            print("};", file=fout)
+            alg.indices = indices_backup
+            #
+            print("If[(@%s@ %% @%s@ != 0)] {" % (dim, "nb"), file=fout)
+            # start
+            alg.indices = replace_iterator_in_indices( alg.indices, it, "Max(@%s@-@%s@%%@nb@, %s)" % (dim, dim, post_min_start) )
+            # size
+            alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "Min(@nb@, @%s@%%@nb@)" % dim )
+            print( "\t%% %s" % update, file=fout )
+            print( "\t" + click2lgen(update, alg) + ";", file=fout )
+            print("};", file=fout)
+            alg.indices = indices_backup
+        else:
+            # size
+            alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "Min(@nb@, @%s@%%@nb@)" % dim )
+            # start
+            alg.indices = replace_iterator_in_indices( alg.indices, it, "Max(@%s@-@%s@%%@nb@, %s)" % (dim, dim, post_min_start) )
+            print( "%% %s" % update, file=fout )
+            print( "" + click2lgen(update, alg) + ";", file=fout )
+            alg.indices = indices_backup
+        #print( "%% %s" % update, file=fout )
+        #print( "" + click2lgen(update, alg) + ";", file=fout )
+        #alg.indices = indices_backup
     print( "", file=fout )
 
 def click2lgen( node, alg ):
