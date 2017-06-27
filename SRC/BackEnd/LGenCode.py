@@ -148,15 +148,10 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
                 print( lpla_alg )
                 while not done:
                     mydfg.checkPredicateOverwrite()
-                    #print( lpla_alg )
                     mydfg.opt_backward_copy_propagation()
-                    #print( lpla_alg )
                     mydfg.opt_copy_propagation()
-                    #print( lpla_alg )
                     mydfg.opt_remove_self_assignments()
-                    #print( lpla_alg )
                     mydfg.analysis_next_use()
-                    #print( lpla_alg )
                     mydfg.opt_dead_code_elimination()
 
                     tmp_alg = dfg2lpla( mydfg )
@@ -176,13 +171,7 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
             out_path = os.path.join( lgen_dir, dim_sliced, dim_sliced + "%d.ll" % var )
             with open( out_path, "w" ) as out:
                 generate_lgen_algorithm( operation, pme, linv, alg, var, lpla_alg, out )
-            # For now, only one variant for each dimension
-            # [CHECK]
-            #break 
-        #for linv, alg in zip( pme_linv, pme_alg ):
-            #out_path = os.path.join( os.path.join( ops_class, op_dir, op.name + "_blk_var" + str(alg.variant) + ".lg" ) )
-            #with open( out_path, "w" ) as out:
-                #generate_lgen_code( self, pme, linv, alg, var, out )
+
             var += 1
 
     # Produce base case algorithm
@@ -243,9 +232,6 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
             if op.isTemporary() and "_" not in op.name: # "_" means part of a whole temporary
                 (r,c), (indr, indc) =  lgen_size( rhs, alg )
                 temp_size[ op.name ] = op, r, c
-                #print()
-                #print( op )
-                #print( r, c )
                 #alg.indices[ op.name ] = ((r,r,"0"), (c,c,"0")) # The middle ones would be problem dimensions, but we don't care for this
                 r0, r1, r2 = indr
                 c0, c1, c2 = indc
@@ -319,7 +305,6 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
         sys.exit(-1)
     quadrant, op = alg.guard[0]
     # dim needed to the replacement of iterators in peeling
-    #(it, start, end, step), dim = traversal2loop( alg, op, quadrant, bool(pre), bool(post) ) # (..., peel_first?, peel_last?)
     (it, start, end, step), dim = traversal2loop( alg, op, quadrant, alg.peel_first_it, alg.peel_last_it ) # (..., peel_first?, peel_last?)
     #
     # Get bounds for top and bottom (repart, cont_with)
@@ -357,7 +342,6 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
     # Peel last iteration
     for i in range(loop_post_bounds[0], loop_post_bounds[1]):
         update = lpla_alg.body[i]
-        #print( "###", update )
         if not isinstance( update, Equal ):
             continue
         indices_backup = copy.deepcopy(alg.indices)
@@ -374,8 +358,6 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
         # [CHECK] Think about and/or?
         #iszero = r_sympy is sympy.S.Zero and c_sympy is sympy.S.Zero
         iszero = r_sympy is sympy.S.Zero or c_sympy is sympy.S.Zero
-        #print( alg.indices[lhs.get_name()] )
-        #print( "OOO", r_sympy, c_sympy, iszero )
         if iszero:
             continue
         #
@@ -425,7 +407,6 @@ def click2lgen( node, alg ):
                 indices = alg.indices[ str(node) ]
                 ind_str = "[h(%s), h(%s)]" % (",".join(indices[0]), ",".join(indices[1]))
             except Exception as e: # temporary in update tiling (not partitioned, repartitioned, ...)
-                #print( e )
                 ind_str = ""
             # properties
             all_props = node.get_properties()
@@ -499,8 +480,6 @@ def click2lgen( node, alg ):
     return _click2lgen( node )
 
 def traversal2loop( alg, opname, quadrant, peel_first, peel_last ):
-    #print( opname )
-    #print( quadrant )
     quadrant, op = opname #[TODO] Cleanup (due to some changes for the generation of flamec)
     #op = [ op for op in alg.linv.linv_operands if op.name == opname ][0]
     # dims
