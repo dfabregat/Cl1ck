@@ -7,7 +7,7 @@ from core.functional import replace, RewriteRule, Replacement
 
 import Passes.lpla as lpla
 
-def peel_loop( alg, lpla_alg, force_tail=True ):
+def peel_loop( alg, lpla_alg, force_tail_peeling=True ):
     # Grab while loop
     line, lpla_loop = [ (i,st) for i,st in enumerate(lpla_alg.body) if isinstance( st, lpla._while ) ][0]
     # Get bounds for top and bottom (repart, cont_with)
@@ -31,10 +31,8 @@ def peel_loop( alg, lpla_alg, force_tail=True ):
     post = rewrite_computation( alg, final_rules )
     #
     # Build peeling pre and post loop
-    #pre_loop = pre
     # Same length as well, otherwise zip truncates and may lead to errors
     if len(pre) == len(alg.updates) and  all( [p == u for p,u in zip( pre, alg.updates )] ):
-        #pre_loop = []
         peeling_pre = []
         alg.peel_first_it = False
     else:
@@ -45,14 +43,13 @@ def peel_loop( alg, lpla_alg, force_tail=True ):
         for i in range( loop_bottom_bounds[0], loop_bottom_bounds[1] ):
             peeling_pre.append( copy.deepcopy( lpla_loop.body[i] ) )
         alg.peel_first_it = True
-    #post_loop = post 
     # Same length as well, otherwise zip truncates and may lead to errors
     if len(post) == len(alg.updates) and  all( [p == u for p,u in zip( post, alg.updates )] ):
-        alg.needs_tail_peeling = False
+        alg.needs_tail_peeling = False 
     else:
-        alg.needs_tail_peeling = True
-    if not alg.needs_tail_peeling and not force_tail:
-        #post_loop = []
+        alg.needs_tail_peeling = True # Peeling is needed to avoid if statements within 
+                                      # the loop (access to empty flame objects)
+    if not alg.needs_tail_peeling and not force_tail_peeling:
         peeling_post = []
         alg.peel_last_it = False
     else:
@@ -63,12 +60,10 @@ def peel_loop( alg, lpla_alg, force_tail=True ):
         for i in range( loop_bottom_bounds[0], loop_bottom_bounds[1] ):
             peeling_post.append( copy.deepcopy( lpla_loop.body[i] ) )
         alg.peel_last_it = True
-    #
-    #return( pre_loop, updates, post_loop )
     # Attach
     lpla_alg.body[line+1:line+1] = peeling_post
     lpla_alg.body[line:line] = peeling_pre
-    #return( peeling_pre, peeling_post )
+
     return lpla_alg
 
 def rewrite_computation( alg, rules ):
