@@ -39,10 +39,10 @@ for operation in Config.options.operations:
                                 rule_name = "program",
                                 semantics = cl1ckSemantics() )
         except Exception as e:
-            print('Error while parsing "{}":'.format(op_def))
-            lninfo = parser._buffer.line_info()
-            print('Line {0.line}:\t{0.text}'.format(lninfo))
-            print('              \t' + ' ' * lninfo.col + '^')
+            print('Error while parsing "{}":'.format(operation))
+            #lninfo = parser._buffer.line_info()
+            #print('Line {0.line}:\t{0.text}'.format(lninfo))
+            #print('              \t' + ' ' * lninfo.col + '^')
             print(e)
             sys.exit(1)
 
