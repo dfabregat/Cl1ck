@@ -243,6 +243,9 @@ class cl1ckParser(Parser):
                 self._token('UnitDiagonal')
                 self.name_last_node('@')
             with self._option():
+                self._token('ImplicitUnitDiagonal')
+                self.name_last_node('@')
+            with self._option():
                 self._token('Symmetric')
                 self.name_last_node('@')
             with self._option():
@@ -257,7 +260,7 @@ class cl1ckParser(Parser):
             with self._option():
                 self._token('UpperStorage')
                 self.name_last_node('@')
-            self._error('expecting one of: Diagonal LowerStorage LowerTriangular Non-singular Rectangular SPD Square Symmetric UnitDiagonal UpperStorage UpperTriangular')
+            self._error('expecting one of: Diagonal ImplicitUnitDiagonal LowerStorage LowerTriangular Non-singular Rectangular SPD Square Symmetric UnitDiagonal UpperStorage UpperTriangular')
 
     @graken()
     def _ow_(self):

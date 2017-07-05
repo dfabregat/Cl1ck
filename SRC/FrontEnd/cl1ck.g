@@ -15,7 +15,7 @@ dim_vector = "(" @+:id ")" ;
 dim_matrix = "(" @+:id "," @+:id ")";
 io = "Input" | "Output";
 prop = @:"Square" | @:"Rectangular"
-     | @:"Diagonal" | @:"LowerTriangular" | @:"UpperTriangular" | @:"UnitDiagonal" 
+     | @:"Diagonal" | @:"LowerTriangular" | @:"UpperTriangular" | @:"UnitDiagonal" | @:"ImplicitUnitDiagonal"
      | @:"Symmetric" | @:"Non-singular" | @:"SPD"
      | @:"LowerStorage" | @: "UpperStorage" ;
 ow = "overwrites" "(" @:id ")" ;
