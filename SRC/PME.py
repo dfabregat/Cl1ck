@@ -269,7 +269,8 @@ class PME( object ):
     def solve_base_case( self ):
         unk = [sympy.var(op.get_name()) for op in self.operands if op.isOutput()]
         # [TODO] With new operations, this will get more complex/complete
-        solved = dict( [ (sympy.var(v.get_name()), 1) for v in self.operands if v.isOutput() and v.isUnitDiagonal() ] )
+        solved = dict( [ (sympy.var(v.get_name()), 1) for v in self.operands if v.isOutput() and \
+                (v.isUnitDiagonal() or v.isImplicitUnitDiagonal()) ] )
         sols = sympy.solve([click2sympy(eq) for eq in self.equation], unk, dict=True)
 
         #elif isinstance( sol, list ) and len(unk) == 1: 
@@ -336,7 +337,7 @@ def filter_zero_zero( eqs ):
 
 def click2sympy( node ):
     if isinstance( node, Symbol ):
-        if node.isUnitDiagonal():
+        if node.isUnitDiagonal() or node.isImplicitUnitDiagonal():
             return 1
         return sympy.var( node.get_name() )
     elif isinstance( node, Plus ):
