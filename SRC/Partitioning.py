@@ -178,6 +178,8 @@ def inherit_properties( operand, part, shape, prop, **kwargs ):
         inherit_upper_triangular( part, shape )
     elif prop == properties.UNIT_DIAGONAL:
         inherit_unit_diagonal( part, shape )
+    elif prop == properties.IMPLICIT_UNIT_DIAGONAL:
+        inherit_implicit_unit_diagonal( part, shape )
     elif prop == properties.SYMMETRIC:
         inherit_symmetric( operand, part, shape )
     elif prop == properties.SPD:
@@ -260,6 +262,14 @@ def inherit_unit_diagonal( part, shape ):
     if m == n:
         for i in range(m):
             part[i][i].set_property( properties.UNIT_DIAGONAL )
+    else:
+        raise WrongPartitioningShape
+
+def inherit_implicit_unit_diagonal( part, shape ):
+    m, n = shape
+    if m == n:
+        for i in range(m):
+            part[i][i].set_property( properties.IMPLICIT_UNIT_DIAGONAL )
     else:
         raise WrongPartitioningShape
 
