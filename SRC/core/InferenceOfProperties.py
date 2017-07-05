@@ -172,6 +172,11 @@ def isUnitDiagonal( node ):
             #return True
     return False
 
+def isImplicitUnitDiagonal( node ):
+    if node.isImplicitUnitDiagonal():
+        return True
+    return False
+
 def isSymmetric( node ):
     # isinstance?
     if node.isSymmetric():

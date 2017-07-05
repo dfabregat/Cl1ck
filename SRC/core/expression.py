@@ -124,6 +124,9 @@ class BaseExpression( object ):
     def isUnitDiagonal( self ):
         return properties.UNIT_DIAGONAL in self.properties
 
+    def isImplicitUnitDiagonal( self ):
+        return properties.IMPLICIT_UNIT_DIAGONAL in self.properties
+
     def isSymmetric( self ):
         return properties.SYMMETRIC in self.properties
 
@@ -638,6 +641,9 @@ class Symbol( Atom ):
 
     def isUnitDiagonal( self ):
         return properties.UNIT_DIAGONAL in _TOS.get_properties(self.get_name())
+
+    def isImplicitUnitDiagonal( self ):
+        return properties.IMPLICIT_UNIT_DIAGONAL in _TOS.get_properties(self.get_name())
 
     def isSymmetric( self ):
         return properties.SYMMETRIC in _TOS.get_properties(self.get_name())

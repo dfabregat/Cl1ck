@@ -15,6 +15,7 @@ TRIANGULAR = "Triangular"
 LOWER_TRIANGULAR = "LowerTriangular"
 UPPER_TRIANGULAR = "UpperTriangular"
 UNIT_DIAGONAL = "UnitDiagonal"
+IMPLICIT_UNIT_DIAGONAL = "ImplicitUnitDiagonal"
 #
 SYMMETRIC = "Symmetric"
 SPD = "SPD"
@@ -31,6 +32,7 @@ TOE_properties = [
     LOWER_TRIANGULAR,
     UPPER_TRIANGULAR,
     UNIT_DIAGONAL,
+    IMPLICIT_UNIT_DIAGONAL,
     #
     SYMMETRIC,
     SPD,

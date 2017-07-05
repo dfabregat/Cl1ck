@@ -18,6 +18,7 @@ prop_to_func = {
     LOWER_TRIANGULAR : isLowerTriangular,
     UPPER_TRIANGULAR : isUpperTriangular,
     UNIT_DIAGONAL : isUnitDiagonal,
+    IMPLICIT_UNIT_DIAGONAL : isImplicitUnitDiagonal,
     #
     SYMMETRIC : isSymmetric,
     SPD : isSPD,
