@@ -39,13 +39,27 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
     # Operation definition
     out_path = os.path.join( os.path.join( lgen_dir, "definition.ll" ) )
     with open( out_path, "w" ) as out:
+        # needed when multiple output operands overwrite one same input (e.g., lu)
+        declared = []
         # Declaration of operands
         for op in inouts:
+            if op.st_info[1].name in declared:
+                continue
+            declared.append( op.st_info[1].name )
+            #
             print( declaration(op, "inout"), file=out )
         for op in inops:
+            if op.st_info[1].name in declared:
+                continue
+            declared.append( op.st_info[1].name )
+            #
             if op not in inouts:
                 print( declaration(op, "in"), file=out )
         for op in outops:
+            if op.st_info[1].name in declared:
+                continue
+            declared.append( op.st_info[1].name )
+            #
             if op.st_info[1] == op:
                 print( declaration(op, "out"), file=out )
         print( file=out )
@@ -55,9 +69,10 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
             #out_dims = ", ".join([ "@%s" % str(s) for s in outops[0].size ])
             out_dims = ", ".join([ "@%s" % str(s) for s in outops[0].st_info[1].size ])
         else:
-            output = "[%s]" % ", ".join([ o.name for o in outops ])
-            out_dims = "?"
-            raise Exception
+            output = "[%s]" % ", ".join([ o.st_info[1].name for o in outops ])
+            #out_dims = "?"
+            out_dims = ", ".join([ "@%s" % str(s) for s in outops[0].st_info[1].size ])
+            #raise Exception
         inp = ", ".join([i.name for i in inops])
         name = operation.name
         if Config.options.opt:
@@ -185,9 +200,13 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
     #
     scalar_solutions = operation.pmes[0].scalar_solution # [CHECK] this should probably be in operation, not in pme
     for scalar_sol in scalar_solutions:
+        lhs, rhs = scalar_sol.split("=")
+        lhs = lhs.strip()
+        lhs_op = [op for op in outops if op.name == lhs][0]
+        if lhs_op.isImplicitUnitDiagonal(): # avoid assigning the implicit value 1
+            continue
+        #
         for operand in operation.operands:
-            #if operand in overwritten:
-                #continue
             scalar_sol = scalar_sol.replace( operand.name, opname2macro[operand.name] )
         scalar_sols.append( scalar_sol )
     out_path = os.path.join( os.path.join( lgen_dir, "1x1.ll" ) )
