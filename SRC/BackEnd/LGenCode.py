@@ -42,12 +42,12 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
         # needed when multiple output operands overwrite one same input (e.g., lu)
         declared = []
         # Declaration of operands
-        for op in inouts:
-            if op.st_info[1].name in declared:
-                continue
-            declared.append( op.st_info[1].name )
-            #
-            print( declaration(op, "inout"), file=out )
+        #for op in inouts:
+            #if op.st_info[1].name in declared:
+                #continue
+            #declared.append( op.st_info[1].name )
+            ##
+            #print( declaration(op, "inout"), file=out )
         for op in inops:
             if op.st_info[1].name in declared:
                 continue
@@ -55,6 +55,8 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
             #
             if op not in inouts:
                 print( declaration(op, "in"), file=out )
+            else:
+                print( declaration(op, "inout"), file=out )
         for op in outops:
             if op.st_info[1].name in declared:
                 continue
