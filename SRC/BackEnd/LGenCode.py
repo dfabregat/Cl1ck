@@ -414,10 +414,11 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
         else:
             # size
             #alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, @%s@%%@nb@)" % dim )
-            alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, mod(@%s@,@nb@))" % dim )
+            #alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, mod(@%s@,@nb@))" % dim )
             # start
             #alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-@%s@%%@nb@, %s)" % (dim, dim, post_min_start) )
-            alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-mod(@%s@,@nb@), %s)" % (dim, dim, post_min_start) )
+            #alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-mod(@%s@,@nb@), %s)" % (dim, dim, post_min_start) )
+            alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-@nb@, %s)" % (dim, post_min_start) )
             print( "%% %s" % update, file=fout )
             print( "" + click2lgen(update, alg) + ";", file=fout )
             alg.indices = indices_backup
