@@ -343,7 +343,7 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
         update = lpla_alg.body[i]
         if not isinstance( update, Equal ):
             continue
-        print( "%% %s" % update, file=fout )
+        print( "%%%% %s" % update, file=fout )
         indices_backup = copy.deepcopy(alg.indices)
         alg.indices = replace_iterator_in_indices( alg.indices, it, "0" )
         alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@,@%s@)"%dim )
@@ -357,7 +357,7 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
     for update in loop.body:
         if not isinstance( update, Equal ):
             continue
-        print( "\t%% %s" % update, file=fout )
+        print( "\t%%%% %s" % update, file=fout )
         print( "\t" + click2lgen(update, alg) + ";", file=fout )
     print( "};", file=fout )
     # Peel last iteration
@@ -388,26 +388,26 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
             post_min_start = "0"
         #if alg.needs_tail_peeling:
         if not alg.needs_tail_peeling: # enforced
-            #print("If[(@%s@ %% @%s@ == 0)] {" % (dim, "nb"), file=fout)
-            print("If[mod(@%s@, @%s@) == 0] {" % (dim, "nb"), file=fout)
+            print("If[(@%s@ %% @%s@) == 0] {" % (dim, "nb"), file=fout)
+            # print("If[mod(@%s@, @%s@) == 0] {" % (dim, "nb"), file=fout)
             # start
             alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-@nb@, %s)" % (dim, post_min_start) )
             # size
             #alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, @%s@-@%s@%%@nb@)" % (dim, dim) )
-            print( "\t%% %s" % update, file=fout )
+            print( "\t%%%% %s" % update, file=fout )
             print( "\t" + click2lgen(update, alg) + ";", file=fout )
             print("};", file=fout)
             alg.indices = indices_backup
             #
-            #print("If[(@%s@ %% @%s@ != 0)] {" % (dim, "nb"), file=fout)
-            print("If[mod(@%s@, @%s@) != 0] {" % (dim, "nb"), file=fout)
+            print("If[(@%s@ %% @%s@) != 0] {" % (dim, "nb"), file=fout)
+            # print("If[mod(@%s@, @%s@) != 0] {" % (dim, "nb"), file=fout)
             # start
-            #alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-@%s@%%@nb@, %s)" % (dim, dim, post_min_start) )
-            alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-mod(@%s@,@nb@), %s)" % (dim, dim, post_min_start) )
+            alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-(@%s@%%@nb@), %s)" % (dim, dim, post_min_start) )
+            # alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-mod(@%s@,@nb@), %s)" % (dim, dim, post_min_start) )
             # size
-            #alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, @%s@%%@nb@)" % dim )
-            alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, mod(@%s@,@nb@))" % dim )
-            print( "\t%% %s" % update, file=fout )
+            alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, @%s@%%@nb@)" % dim )
+            # alg.indices = replace_iterator_in_indices( alg.indices, "@nb@", "min(@nb@, mod(@%s@,@nb@))" % dim )
+            print( "\t%%%% %s" % update, file=fout )
             print( "\t" + click2lgen(update, alg) + ";", file=fout )
             print("};", file=fout)
             alg.indices = indices_backup
@@ -419,7 +419,7 @@ def generate_lgen_algorithm( operation, pme, linv, alg, variant, lpla_alg, fout=
             #alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-@%s@%%@nb@, %s)" % (dim, dim, post_min_start) )
             #alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-mod(@%s@,@nb@), %s)" % (dim, dim, post_min_start) )
             alg.indices = replace_iterator_in_indices( alg.indices, it, "max(@%s@-@nb@, %s)" % (dim, post_min_start) )
-            print( "%% %s" % update, file=fout )
+            print( "%%%% %s" % update, file=fout )
             print( "" + click2lgen(update, alg) + ";", file=fout )
             alg.indices = indices_backup
         #print( "%% %s" % update, file=fout )
@@ -532,8 +532,8 @@ def traversal2loop( alg, opname, quadrant, peel_first, peel_last ):
         end = "@%s@-(@nb@+1)" % dim
     # if instead peeled enforced due to sizes non-multiple of nu
     elif Config.options.sizes == "non-multiple-of-nu":
-        #end = "@%s@-(@%s@%%@nb@+1)" % (dim, dim)
-        end = "@%s@-(mod(@%s@,@nb@)+1)" % (dim, dim)
+        end = "@%s@-((@%s@%%@nb@)+1)" % (dim, dim)
+        # end = "@%s@-(mod(@%s@,@nb@)+1)" % (dim, dim)
     # otherwise, for multiples of nu, no peeling, thus this suffices
     else:
         end = "@%s@-(@nb@)" % dim
