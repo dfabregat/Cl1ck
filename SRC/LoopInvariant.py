@@ -149,10 +149,12 @@ class LoopInvariant( object ):
             if not basic_init:
                 continue
             # check if linv and not guard -> post
-            final_status = [ replace( copy.deepcopy(expr), self.op_to_implicit ) for expr in post ]
-            rules1 = []
-            rules2 = []
-            neweq = replace( copy.deepcopy(self.operation.equation), [self.pme.known_ops[-1]] )
+            #final_status = [ replace( copy.deepcopy(expr), self.op_to_implicit ) for expr in post ]
+            final_status = post
+            #rules1 = []
+            #rules2 = []
+            #neweq = replace( copy.deepcopy(self.operation.equation), [self.pme.known_ops[-1]] )
+            neweq = replace( copy.deepcopy(self.operation.equation), self.pme.known_ops )
             # [FIXME] Generalize
             implies_post = True
             if not neweq in final_status:

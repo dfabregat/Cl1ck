@@ -1,3 +1,5 @@
+import os
+import pickle
 import copy
 import itertools
 import functools
@@ -20,6 +22,7 @@ from Partitioning import partition, partition_shape_with_storage
 from graph import build_dep_graph
 
 from RewritingExtension import equation2replacement
+import PredicateMetadata as pm
 
 class PME( object ):
     # operands and postcondition as in input to the operation
@@ -122,10 +125,29 @@ class PME( object ):
             cur_solved_outputs = set([ op.get_name() for op in all_outputs if isInput(op) ])
             #print( "SOLVED:", cur_solved_outputs )
             if solved_outputs == cur_solved_outputs:
-                print( "[WARNING] PME Generation is stuck" )
-                print( solved_outputs )
-                import sys
-                raise Exception
+                print( "" )
+                print( "[WARNING] PME Generation is stuck - Trying recursive instance" )
+                print( "" )
+                minimum = (100000, 100000)
+                subeq = None
+                for eq in subeqs_to_solve:
+                    unks = []
+                    cnt = 0
+                    for node in eq.iterate_preorder():
+                        cnt += 1
+                        if isinstance(node, Symbol) and node.isOutput() and node not in unks:
+                            unks.append(node)
+                    if (len(unks), cnt) < minimum:
+                        subeq = eq
+                        minimum = (len(unks), cnt)
+                from RecursiveInstance import rec_instance
+                ((md_name, md_data), new_patts, new_pmes) = rec_instance( subeq.children[0] )
+                self.known_pmes.extend(new_pmes)
+                print("NPMES:", len(new_pmes))
+                for patt in new_patts:
+                    self.known_ops.append(patt)
+                pm.DB[md_name] = md_data
+                #raise Exception
             solved_outputs = cur_solved_outputs
             if all( [isInput(op) or op.isZero() for op in all_outputs] ):
                 solved = True
@@ -265,6 +287,8 @@ class PME( object ):
         print( "* Learnt PME pattern" )
         print( "*     ", RewriteRule( pattern, Replacement( replacement_str ) ) )
         self.known_pmes.append( RewriteRule( pattern, Replacement( replacement_str ) ) )
+        with open(os.path.join("OUTPUT", self.name+"_pmes"), "ab+") as pmes_f:
+            pickle.dump( self.known_pmes[-1], pmes_f )
 
     def solve_base_case( self ):
         unk = [sympy.var(op.get_name()) for op in self.operands if op.isOutput()]

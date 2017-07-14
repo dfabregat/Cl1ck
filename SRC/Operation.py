@@ -1,6 +1,7 @@
 import sys
 import os
 import copy
+import pickle
 import itertools
 
 from core.expression import Symbol, Matrix, Vector, Scalar, NumericConstant, \
@@ -156,8 +157,13 @@ class Operation( object ):
             expr.children[1] = Minus([ expr.children[1] ])
             expr.children[1] = normalize_minus( copy.deepcopy(expr.children[1]) )
             known_ops_single.insert( 0, RewriteRule( (expr, constraint), replacement ) )
+            #with open(os.path.join("OUTPUT", self.name+"_patterns"), "wb") as patt_f:
+                #pickle.dump( known_ops_single[1], patt_f )
+                #pickle.dump( known_ops_single[0], patt_f )
         else:
             known_ops.insert( 0, RewriteRule( (pattern, constraint), replacement ) )
+            with open(os.path.join("OUTPUT", self.name+"_patterns"), "wb") as patt_f:
+                pickle.dump( known_ops[0], patt_f )
 
         pattern = Equal([ NList([ PatternDot(op.get_name()) for op in outops ]), 
                           Predicate( self.name, [PatternDot(op.get_name()) for op in inops], [op.get_size() for op in outops] ) ])
@@ -235,6 +241,8 @@ class Operation( object ):
             output_size.append( (row_size, col_size) )
         pm.DB[self.name] = pm.PredicateMetadata( self.name, output_size )
         pm.DB[self.name].overwrite = [ (inops.index(inp), outops.index(out)) for inp, out in self.overwrite ]
+        with open(os.path.join("OUTPUT", self.name+"_metadata"), "wb") as md_f:
+            pickle.dump( (self.name, pm.DB[self.name]), md_f )
 
     def generate_loop_invariants( self ):
         print("* Generating Loop invariants...")

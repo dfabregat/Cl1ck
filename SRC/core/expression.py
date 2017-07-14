@@ -350,6 +350,10 @@ class Equal( Operator ):
     def __repr__(self ):
         return "Equal( " + ", ".join( [ str(ch) for ch in self.get_children() ] ) + " )"
 
+    def to_math( self ):
+        lhs, rhs = self.children
+        return "%s = %s" % (lhs.to_math(), rhs.to_math())
+
 class Plus( Operator ):
     def __init__( self, children ):
         Operator.__init__( self, children, \
@@ -364,6 +368,9 @@ class Plus( Operator ):
     def __repr__(self ):
         return "Plus( " + ", ".join( [ str(ch) for ch in self.get_children() ] ) + " )"
 
+    def to_math( self ):
+        return "(%s)" % " + ".join([ch.to_math() for ch in self.children])
+
 class Minus( Operator ):
     def __init__( self, children ):
         Operator.__init__( self, children, [], attributes.UNARY )
@@ -375,6 +382,9 @@ class Minus( Operator ):
 
     def __repr__(self ):
         return "Minus( " + ", ".join( [ str(ch) for ch in self.get_children() ] ) + " )"
+
+    def to_math( self ):
+        return "-%s" % self.children[0].to_math()
 
 class Times( Operator ):
     def __init__( self, children ):
@@ -409,6 +419,9 @@ class Times( Operator ):
     def __repr__(self ):
         return "Times( " + ", ".join( [ str(ch) for ch in self.get_children() ] ) + " )"
 
+    def to_math( self ):
+        return " * ".join([ch.to_math() for ch in self.children])
+
 class Transpose( Operator ):
     def __init__(self, children ):
         Operator.__init__( self, children, [], attributes.UNARY )
@@ -421,6 +434,10 @@ class Transpose( Operator ):
     def __repr__(self ):
         return "Transpose( " + ", ".join( [ str(ch) for ch in self.get_children() ] ) + " )"
 
+    def to_math( self ):
+        return "trans(%s)" % self.children[0].to_math()
+
+
 class Inverse( Operator ):
     def __init__(self, children ):
         Operator.__init__( self, children, [], attributes.UNARY )
@@ -432,6 +449,9 @@ class Inverse( Operator ):
 
     def __repr__(self ):
         return "Inverse( " + ", ".join( [ str(ch) for ch in self.get_children() ] ) + " )"
+
+    def to_math( self ):
+        return "inverse(%s)" % self.children[0].to_math()
 
 class BlockedExpression( Expression ):
     def __init__( self, nd_array, size, shape ):
@@ -661,6 +681,9 @@ class Symbol( Atom ):
         return properties.FULL_RANK in _TOS.get_properties(self.get_name())
 
     def __repr__( self ):
+        return self.name
+
+    def to_math( self ):
         return self.name
 
 sONE = Symbol('1')
