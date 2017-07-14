@@ -140,7 +140,7 @@ class PME( object ):
                     if (len(unks), cnt) < minimum:
                         subeq = eq
                         minimum = (len(unks), cnt)
-                from RecursiveInstance import rec_instance
+                from NestedInstance import rec_instance
                 ((md_name, md_data), new_patts, new_pmes) = rec_instance( subeq.children[0] )
                 self.known_pmes.extend(new_pmes)
                 print("NPMES:", len(new_pmes))
