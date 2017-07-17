@@ -1,6 +1,6 @@
-program rdiv_ut
+program rdiv_utn_ow
     Matrix U(n,n) <Input, UpperTriangular, Non-singular>;
     Matrix A(m,n) <Input>;
-    Matrix B(m,n) <Output>;
+    Matrix B(m,n) <Output, overwrites(A)>;
 
     B * trans(U) = A;

@@ -1,6 +1,6 @@
-program ldiv_un_ow
+program ldiv_utn
     Matrix U(m,m) <Input, UpperTriangular, Non-singular>;
     Matrix A(m,n) <Input>;
-    Matrix B(m,n) <Output, overwrites(A)>;
+    Matrix B(m,n) <Output>;
 
-    U * B = A;
+    trans(U) * B = A;

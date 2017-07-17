@@ -1,6 +1,6 @@
-program ldiv_lt_ow
+program ldiv_lnn
     Matrix L(m,m) <Input, LowerTriangular, Non-singular>;
     Matrix A(m,n) <Input>;
-    Matrix B(m,n) <Output, overwrites(A)>;
+    Matrix B(m,n) <Output>;
 
-    trans(L) * B = A;
+    L * B = A;

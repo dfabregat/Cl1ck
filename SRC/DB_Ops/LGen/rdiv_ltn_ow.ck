@@ -1,6 +1,6 @@
-program rdiv_ln_ow
+program rdiv_ltn_ow
     Matrix L(n,n) <Input, LowerTriangular, Non-singular>;
     Matrix A(m,n) <Input>;
     Matrix B(m,n) <Output, overwrites(A)>;
 
-    B * L = A;
+    B * trans(L) = A;

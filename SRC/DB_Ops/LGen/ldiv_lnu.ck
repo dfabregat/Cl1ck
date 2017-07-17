@@ -1,6 +1,6 @@
-program ldiv_ln_ud_ow
+program ldiv_lnu
     Matrix L(m,m) <Input, LowerTriangular, Non-singular, UnitDiagonal>;
     Matrix A(m,n) <Input>;
-    Matrix B(m,n) <Output, overwrites(A)>;
+    Matrix B(m,n) <Output>;
 
     L * B = A;
