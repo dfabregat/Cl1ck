@@ -40,6 +40,8 @@ class dfg_node( object ):
                             continue
                         if lhs[0].name == rhs.st_info[1].name:
                             continue
+                        if lhs[0].st_info[1].name == rhs.name:
+                            continue
                     except AttributeError:
                         print(" [WARNING] No storage info:", lhs[0], rhs )
                         pass
