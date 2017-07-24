@@ -8,7 +8,6 @@ from FrontEnd.semantics import cl1ckSemantics
 
 import core.TOS as TOS
 import Config
-from Operation import Operation
 
 # Parse arguments
 parser = argparse.ArgumentParser(description="Generation of loop-based algorithms.")
@@ -26,6 +25,8 @@ parser.add_argument("--sizes", type=str, choices=["multiple-of-nu", "non-multipl
 parser.add_argument("--opt", default=False, action="store_true", \
                     help="Generates optimized code (copy propagation, ...)")
 Config.options = parser.parse_args()
+
+from Operation import Operation
 
 # Proceed to generate algorithms/code
 for operation in Config.options.operations:

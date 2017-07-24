@@ -23,6 +23,8 @@ from Passes import dfg
 from Passes.alg_passes import PassCheckPredicateOverwrite
 from Passes import lpla_lgen_peeling as peeling
 
+from BackEnd.trsm2lgen import trsm2lgen_rules
+
 
 #
 # Produces the files required for the interaction with LGEN:
@@ -155,6 +157,11 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
                 #print( lpla_alg )
 
             lpla_alg = alg2lpla( operation, pme, linv, alg, var )
+            # trsm2lgen
+            lpla_loop = [ st for st in lpla_alg.body if isinstance( st, lpla._while ) ][0] #[TODO] Ok?
+            lpla_loop.body = [ replace(u, trsm2lgen_rules) if isinstance(u,Equal) else u for u in lpla_loop.body ]
+            alg.updates = [ replace(u, trsm2lgen_rules) for u in alg.updates ]
+            #
             lpla_alg = peeling.peel_loop( alg, lpla_alg, force_tail_peeling=Config.options.sizes=="non-multiple-of-nu" )
             if Config.options.opt:
                 # OPTIMIZATIONS
