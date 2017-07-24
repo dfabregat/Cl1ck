@@ -38,6 +38,8 @@ class dfg_node( object ):
                     try: # [CHECK] Temporaries. All of them?
                         if lhs[0].st_info == rhs.st_info:
                             continue
+                        if lhs[0].name == rhs.st_info[1].name:
+                            continue
                     except AttributeError:
                         print(" [WARNING] No storage info:", lhs[0], rhs )
                         pass
