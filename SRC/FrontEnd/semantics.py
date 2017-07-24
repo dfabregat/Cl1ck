@@ -12,7 +12,7 @@ class cl1ckSemantics(object):
         self._cache = dict()
 
     def declarations(self, ast):
-        decs = dict((d.name, d) for d in ast)
+        decs = [d for d in ast]
         return decs
 
     def declaration(self, ast):

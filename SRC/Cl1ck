@@ -51,7 +51,7 @@ for operation in Config.options.operations:
         decls = ast.declarations
         eqs = ast.equations
         #
-        op_syms = list(decls.values())
+        op_syms = decls
         overwrite = [(op.st_info[1], op) for op in op_syms if op.st_info[1] != op]
         operation = Operation( op_name, op_syms, eqs, overwrite )
         operation.run()
