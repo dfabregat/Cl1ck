@@ -1,4 +1,4 @@
-from core.expression import Equal, Times, Inverse, Transpose, NList, Predicate, PatternDot
+from core.expression import Equal, Times, Minus, Inverse, Transpose, NList, Predicate, PatternDot
 import core.properties as props
 from core.functional import RewriteRule, Constraint, Replacement
 
@@ -170,6 +170,17 @@ trsm2lgen_rules = [
                           [d["A"].get_size(), d["B"]. get_size()]) ])
         )
     ),
+    RewriteRule(
+        (
+            Equal([ NList([ X ]), Times([ Minus([ Inverse([ A ]) ]), B ]) ]),
+            Constraint("A.isLowerTriangular() and X.st_info[1].name == X.name")
+        ),
+        Replacement(
+            lambda d:
+                Equal([ NList([ d["X"] ]), Minus([ Predicate("ldiv_lnn", [d["A"], d["B"]], 
+                          [d["A"].get_size(), d["B"]. get_size()]) ]) ])
+        )
+    ),
     # X = i(t(A)) B -> ldiv_lnn_ow
     RewriteRule(
         (
@@ -180,6 +191,17 @@ trsm2lgen_rules = [
             lambda d:
                 Equal([ NList([ d["X"] ]), Predicate("ldiv_lnn_ow", [d["A"], d["B"]], 
                           [d["A"].get_size(), d["B"]. get_size()]) ])
+        )
+    ),
+    RewriteRule(
+        (
+            Equal([ NList([ X ]), Times([ Minus([ Inverse([ A ]) ]), B ]) ]),
+            Constraint("A.isLowerTriangular() and X.st_info[1].name != X.name")
+        ),
+        Replacement(
+            lambda d:
+                Equal([ NList([ d["X"] ]), Minus([ Predicate("ldiv_lnn_ow", [d["A"], d["B"]], 
+                          [d["A"].get_size(), d["B"]. get_size()]) ]) ])
         )
     ),
     # X = i(t(A)) B -> ldiv_lti

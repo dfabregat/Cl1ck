@@ -116,7 +116,6 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
             #[TODO] This is ugly as hell. FIX!
             alg.operation = operation
 
-            print(known_ops_single)
             alg.updates = [ replace(u, known_ops_single) for u in alg.updates ]
 
             #
@@ -158,9 +157,9 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
 
             lpla_alg = alg2lpla( operation, pme, linv, alg, var )
             # trsm2lgen
-            lpla_loop = [ st for st in lpla_alg.body if isinstance( st, lpla._while ) ][0] #[TODO] Ok?
-            lpla_loop.body = [ replace(u, trsm2lgen_rules) if isinstance(u,Equal) else u for u in lpla_loop.body ]
-            alg.updates = [ replace(u, trsm2lgen_rules) for u in alg.updates ]
+            #lpla_loop = [ st for st in lpla_alg.body if isinstance( st, lpla._while ) ][0] #[TODO] Ok?
+            #lpla_loop.body = [ replace(u, trsm2lgen_rules) if isinstance(u,Equal) else u for u in lpla_loop.body ]
+            #alg.updates = [ replace(u, trsm2lgen_rules) for u in alg.updates ]
             #
             lpla_alg = peeling.peel_loop( alg, lpla_alg, force_tail_peeling=Config.options.sizes=="non-multiple-of-nu" )
             if Config.options.opt:
@@ -190,6 +189,8 @@ def generate_lgen_files( operation, lgen_dir, known_ops_single ):
                 lpla_loop = [ st for st in lpla_alg.body if isinstance( st, lpla._while ) ][0] #[TODO] Ok?
                 new_updates = [ st for st in lpla_loop.body if isinstance(st, Equal) ] 
                 alg.updates = new_updates
+
+            replace_trsm2lgen( lpla_alg )
 
             #out_path = os.path.join( os.path.join( lgen_dir, dim_sliced + ".ll" ) )
             out_path = os.path.join( lgen_dir, dim_sliced, dim_sliced + "%d.ll" % var )
@@ -475,7 +476,13 @@ def click2lgen( node, alg ):
                 opname = "@"+opname+"@" #[TODO] Back to setting it here for everyone, no need to spread @s all over
             return opname + ind_str + props_str
         elif isinstance( node, Plus ):
-            return " + ".join( [ _click2lgen(ch) for ch in node.get_children()] )
+            # [FIX] Quick & dirty to print in a more convenient way for lgen
+            sorted_ch = [ ch for ch in node.get_children() if not isinstance(ch, Times) ]
+            sorted_ch += [ ch for ch in node.get_children() if isinstance(ch, Times) ]
+            for c in sorted_ch:
+                print(c)
+            return " + ".join( [ _click2lgen(ch) for ch in sorted_ch ] )
+            #return " + ".join( [ _click2lgen(ch) for ch in node.get_children()] )
         elif isinstance( node, Times ):
             return " * ".join( [ _click2lgen(ch) for ch in node.get_children()] )
         elif isinstance( node, Minus ):
@@ -801,3 +808,12 @@ def declaration( op, iotype ):
         else: # [THINK] Should I consider this the default or is there always a specified storage?
             cols = "u"
     return "%s: %s<%s, %s, %s>;" % (op.name, mat_type, rows, cols, iotype)
+
+def replace_trsm2lgen( node ):
+    if isinstance( node, lpla.function ) or isinstance( node, lpla._while):
+        node.body = [ replace_trsm2lgen( st ) for st in node.body ]
+        return node
+    elif isinstance( node, Equal ):
+        return replace(node, trsm2lgen_rules)
+    else:
+        return node
